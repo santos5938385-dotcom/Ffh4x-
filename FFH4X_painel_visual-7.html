@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFH4X - Painel Visual</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{background:radial-gradient(circle at 50% 20%,#26004d 0%,#09000f 38%,#030305 80%);color:white;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(90deg,rgba(150,0,255,.04) 1px,transparent 1px),linear-gradient(rgba(150,0,255,.04) 1px,transparent 1px);background-size:35px 35px;pointer-events:none}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:100px;border-bottom:1px solid #5d00b8;display:flex;align-items:center;padding:0 25px;background:rgba(5,0,12,.92);box-shadow:0 0 25px rgba(130,0,255,.18)}
+.logo{width:260px}.logo h1{font-size:42px;font-weight:900;font-style:italic;color:#a855ff;text-shadow:0 0 8px #7b00ff,0 0 25px #5700aa}.logo span{display:block;margin-top:-5px;font-size:15px;letter-spacing:4px;color:#ddd}
+.title-area{flex:1;padding-left:30px}.title-area h2{color:#a100ff;font-size:22px;letter-spacing:1px}.title-area p{margin-top:10px;color:#eee;font-size:14px}.title-area p span{color:#a600ff;margin:0 12px}.top-right{font-size:20px;color:#c36cff;font-weight:bold;font-style:italic}
+.main{flex:1;display:flex}.sidebar{width:250px;border-right:1px solid #5700a5;background:rgba(5,0,12,.9);padding:25px 12px}.menu{display:flex;flex-direction:column;gap:8px}
+.menu button{width:100%;height:58px;border:1px solid transparent;border-radius:10px;background:transparent;color:#ddd;text-align:left;padding:0 20px;font-size:15px;cursor:pointer;transition:.2s}
+.menu button:hover,.menu button.active{background:linear-gradient(90deg,#6500dc,#360078);border-color:#a100ff;color:white;box-shadow:0 0 18px rgba(145,0,255,.35)}
+.menu-icon{display:inline-block;width:30px;font-size:19px;color:#a855ff}
+.content{flex:1;padding:25px}.dashboard{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1fr) 320px;gap:14px}
+.card{background:rgba(7,3,15,.91);border:1px solid #7200d6;border-radius:12px;padding:20px;box-shadow:0 0 20px rgba(106,0,210,.12),inset 0 0 20px rgba(110,0,255,.025)}
+.card-title{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:bold;margin-bottom:18px}.card-title .icon{color:#b75cff;font-size:26px}.tag{font-size:10px;border:1px solid #9700ff;color:#b94cff;border-radius:6px;padding:5px 8px;margin-left:auto}
+.option{min-height:53px;border-top:1px solid rgba(130,0,255,.2);display:flex;align-items:center;gap:12px}.option:first-of-type{border-top:none}.option-name{flex:1;font-size:14px;color:#e5e5e5}
+.switch{position:relative;width:46px;height:24px;flex-shrink:0}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;border-radius:30px;background:#171020;border:1px solid #52207c;cursor:pointer;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:#aaa;transition:.2s}.switch input:checked+.slider{background:linear-gradient(90deg,#6500ff,#a400ff);box-shadow:0 0 10px #8500ff}.switch input:checked+.slider:before{transform:translateX(22px);background:white}
+select{background:#0b0612;border:1px solid #6f00c9;color:white;border-radius:7px;padding:9px 12px;outline:none}.range-container{display:flex;align-items:center;gap:10px}input[type=range]{accent-color:#9400ff;width:130px}
+.status-card{grid-column:3;grid-row:span 2}.status-box{border:1px solid #8c00ed;border-radius:10px;padding:15px;margin-bottom:15px}.status-header{display:flex;justify-content:space-between;margin-bottom:16px}.status-label{background:#8c00ed;padding:6px 12px;border-radius:5px;font-size:12px}.ready{color:#00ff7b;font-size:13px}.info-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;color:#aaa}.info-row strong{color:white}
+.big-button{width:100%;height:58px;border-radius:9px;border:none;margin-top:12px;font-size:17px;font-weight:bold;cursor:pointer;color:white;transition:.2s}.inject{background:linear-gradient(90deg,#7900ff,#a100ff);box-shadow:0 0 18px rgba(142,0,255,.35)}.inject:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(142,0,255,.6)}.antiban{background:#10091a;border:1px solid #7300c9}.big-button:active{transform:scale(.98)}
+.quick-title{margin-top:20px;margin-bottom:8px;color:#ddd;font-size:14px}.reset{background:transparent;border:1px solid #6e00bd;color:#bbb}.reset:hover{background:#25003d}
+.notification{position:fixed;right:25px;bottom:25px;min-width:260px;background:#11091b;border:1px solid #9700ff;border-radius:10px;padding:15px 18px;box-shadow:0 0 25px rgba(140,0,255,.35);transform:translateY(120px);opacity:0;transition:.3s;z-index:999}.notification.show{transform:translateY(0);opacity:1}.notification strong{color:#b75cff}
+.footer{height:55px;border-top:1px solid #53009b;display:flex;align-items:center;justify-content:center;color:#a855ff;font-size:12px;letter-spacing:1px;background:rgba(4,0,9,.95)}
+@media(max-width:1100px){.dashboard{grid-template-columns:1fr 1fr}.status-card{grid-column:span 2;grid-row:auto}.sidebar{width:190px}}
+@media(max-width:750px){.topbar{height:auto;padding:15px;flex-wrap:wrap;gap:10px}.logo{width:170px}.logo h1{font-size:30px}.title-area{padding-left:5px}.title-area h2{font-size:16px}.top-right{display:none}.main{flex-direction:column}.sidebar{width:100%;border-right:none;border-bottom:1px solid #5700a5;padding:8px}.menu{display:grid;grid-template-columns:repeat(4,1fr)}.menu button{height:45px;padding:5px;text-align:center;font-size:10px}.menu-icon{display:block;width:auto}.content{padding:12px}.dashboard{grid-template-columns:1fr}.status-card{grid-column:auto}}
+
+/* ANIMAÇÃO DE INJEÇÃO — SOMENTE VISUAL */
+.inject-overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.78);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    transition:.25s;
+    z-index:2000;
+}
+.inject-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+.inject-window{
+    width:min(520px,92vw);
+    background:linear-gradient(145deg,#10051c,#050308);
+    border:1px solid #9200ff;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 0 45px rgba(145,0,255,.45);
+}
+.inject-window h2{
+    color:#b85cff;
+    font-size:22px;
+    margin-bottom:8px;
+}
+.inject-window .sub{
+    color:#999;
+    font-size:13px;
+    margin-bottom:20px;
+}
+.progress-wrap{
+    width:100%;
+    height:18px;
+    background:#170d20;
+    border:1px solid #5d2384;
+    border-radius:20px;
+    overflow:hidden;
+}
+.progress-bar{
+    width:0%;
+    height:100%;
+    border-radius:20px;
+    background:linear-gradient(90deg,#6200ff,#c000ff);
+    box-shadow:0 0 15px #9a00ff;
+    transition:width .12s linear;
+}
+.progress-info{
+    display:flex;
+    justify-content:space-between;
+    margin-top:9px;
+    color:#ddd;
+    font-size:13px;
+}
+.fake-console{
+    height:150px;
+    overflow:hidden;
+    margin-top:17px;
+    padding:12px;
+    border:1px solid #3e1956;
+    border-radius:9px;
+    background:#030204;
+    color:#9f51d8;
+    font-family:monospace;
+    font-size:11px;
+    line-height:18px;
+}
+.open-ff{
+    display:none;
+    width:100%;
+    margin-top:17px;
+    height:52px;
+    border:0;
+    border-radius:9px;
+    color:white;
+    font-weight:bold;
+    font-size:15px;
+    cursor:pointer;
+    background:linear-gradient(90deg,#7000ff,#a900ff);
+    box-shadow:0 0 20px rgba(150,0,255,.4);
+}
+.open-ff.show{
+    display:block;
+}
+.close-inject{
+    width:100%;
+    margin-top:10px;
+    height:42px;
+    border:1px solid #55206f;
+    border-radius:8px;
+    background:#0c0710;
+    color:#aaa;
+    cursor:pointer;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+<div class="logo"><h1>FFH4X</h1><span>FREE FIRE</span></div>
+<div class="title-area"><h2>PAINEL DE MODIFICAÇÕES</h2><p>MAIS DESEMPENHO <span>•</span> MAIS PRECISÃO <span>•</span> MAIS CONTROLE</p></div>
+<div class="top-right">JOGUE SEM LIMITES</div>
+</header>
+<div class="main">
+<aside class="sidebar"><nav class="menu">
+<button class="active"><span class="menu-icon">⌂</span> PRINCIPAL</button>
+<button><span class="menu-icon">◉</span> VISUAIS</button>
+<button><span class="menu-icon">◎</span> AIM</button>
+<button><span class="menu-icon">⚡</span> MOVIMENTAÇÃO</button>
+<button><span class="menu-icon">▣</span> GRÁFICOS</button>
+<button><span class="menu-icon">✚</span> EXTRAS</button>
+<button><span class="menu-icon">⚙</span> CONFIGURAÇÕES</button>
+<button><span class="menu-icon">ⓘ</span> SOBRE</button>
+</nav></aside>
+<main class="content"><div class="dashboard">
+
+<section class="card"><div class="card-title"><span class="icon">◎</span>AIMBOT<span class="tag">FOCO NO ALVO</span></div>
+<div class="option"><span class="option-name">Aimbot</span><label class="switch"><input type="checkbox" data-name="Aimbot"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Aimbot Lite</span><label class="switch"><input type="checkbox" data-name="Aimbot Lite"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Aimbot Linha</span><label class="switch"><input type="checkbox" data-name="Aimbot Linha"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Auxílio de Mira</span><label class="switch"><input type="checkbox" data-name="Auxílio de Mira"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Headtrick</span><label class="switch"><input type="checkbox" data-name="Headtrick"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Tipo de Mira</span><select><option>Cabeça</option><option>Pescoço</option><option>Corpo</option><option>Automático</option></select></div>
+<div class="option"><span class="option-name">FOV</span><div class="range-container"><input type="range" min="0" max="360" value="120" id="fov"><span id="fovValue">120°</span></div></div>
+</section>
+
+<section class="card"><div class="card-title"><span class="icon">◉</span>VISUAIS<span class="tag">VEJA TUDO</span></div>
+<div class="option"><span class="option-name">ESP Nome</span><label class="switch"><input type="checkbox" data-name="ESP Nome"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">ESP Vida</span><label class="switch"><input type="checkbox" data-name="ESP Vida"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">ESP Esqueleto</span><label class="switch"><input type="checkbox" data-name="ESP Esqueleto"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">ESP Caixa</span><label class="switch"><input type="checkbox" data-name="ESP Caixa"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">ESP Linha</span><label class="switch"><input type="checkbox" data-name="ESP Linha"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">ESP Distância</span><label class="switch"><input type="checkbox" data-name="ESP Distância"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Mostrar Carros</span><label class="switch"><input type="checkbox" data-name="Mostrar Carros"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Mostrar Armas</span><label class="switch"><input type="checkbox" data-name="Mostrar Armas"><span class="slider"></span></label></div>
+</section>
+
+<section class="card"><div class="card-title"><span class="icon">⚡</span>MOVIMENTAÇÃO<span class="tag">AGILIDADE</span></div>
+<div class="option"><span class="option-name">Velocidade Visual</span><div class="range-container"><input type="range" min="1" max="10" value="5" id="speed"><span id="speedValue">5</span></div></div>
+<div class="option"><span class="option-name">Pulo Automático</span><label class="switch"><input type="checkbox" data-name="Pulo Automático"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">No Recoil</span><label class="switch"><input type="checkbox" data-name="No Recoil"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Precisão no Movimento</span><label class="switch"><input type="checkbox" data-name="Precisão no Movimento"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Correr Mais Rápido</span><label class="switch"><input type="checkbox" data-name="Correr Mais Rápido"><span class="slider"></span></label></div>
+</section>
+
+<section class="card"><div class="card-title"><span class="icon">▣</span>GRÁFICOS<span class="tag">DESEMPENHO</span></div>
+<div class="option"><span class="option-name">FPS Máximo</span><select><option>60 FPS</option><option selected>120 FPS</option><option>144 FPS</option><option>240 FPS</option></select></div>
+<div class="option"><span class="option-name">Gráficos</span><select><option>Baixo</option><option>Alto</option><option selected>Ultra</option></select></div>
+<div class="option"><span class="option-name">Sombras</span><label class="switch"><input type="checkbox" data-name="Sombras"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Alta Resolução</span><label class="switch"><input type="checkbox" data-name="Alta Resolução"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Brilho</span><div class="range-container"><input type="range" min="0" max="100" value="100" id="brightness"><span id="brightnessValue">100%</span></div></div>
+</section>
+
+<section class="card status-card"><div class="card-title"><span class="icon">◆</span>FFH4X</div>
+<div class="status-box"><div class="status-header"><span class="status-label">STATUS</span><span class="ready">● PAINEL PRONTO</span></div>
+<div class="info-row"><span>VERSÃO</span><strong>v2.4.8</strong></div><div class="info-row"><span>JOGO</span><strong>Free Fire</strong></div><div class="info-row"><span>DISPOSITIVO</span><strong>Android / PC</strong></div></div>
+<button class="big-button inject" id="injectBtn">⚡ INJETAR</button>
+<button class="big-button antiban" id="antiBanBtn">🛡 ANTI BAN</button>
+<div class="quick-title">CONFIGURAÇÕES RÁPIDAS</div>
+<div class="option"><span class="option-name">60 FPS</span><label class="switch"><input type="checkbox" data-name="60 FPS"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">120 FPS</span><label class="switch"><input type="checkbox" data-name="120 FPS"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Tela Esticada</span><label class="switch"><input type="checkbox" data-name="Tela Esticada"><span class="slider"></span></label></div>
+<div class="option"><span class="option-name">Sem Som</span><label class="switch"><input type="checkbox" data-name="Sem Som"><span class="slider"></span></label></div>
+<button class="big-button reset" id="resetBtn">↻ RESTAURAR TUDO</button>
+</section>
+
+</div></main></div>
+<footer class="footer">FFH4X • PAINEL VISUAL DEMONSTRATIVO • NENHUMA FUNÇÃO REAL</footer>
+</div>
+
+
+<div class="inject-overlay" id="injectOverlay">
+    <div class="inject-window">
+        <h2 id="injectTitle">INICIANDO INJEÇÃO</h2>
+        <div class="sub" id="injectSub">Processo demonstrativo — nenhuma alteração será feita no jogo.</div>
+
+        <div class="progress-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="progress-info">
+            <span id="progressPercent">0%</span>
+            <span id="progressStatus">Preparando...</span>
+        </div>
+
+        <div class="fake-console" id="fakeConsole"></div>
+
+        <button class="open-ff" id="openFF">▶ ABRIR FREE FIRE MAX</button>
+        <button class="close-inject" id="closeInject">FECHAR</button>
+    </div>
+</div>
+
+<div class="notification" id="notification"><strong id="notificationTitle">FFH4X</strong><br><span id="notificationText">Configuração alterada.</span></div>
+
+<script>
+const notification=document.getElementById("notification"),notificationTitle=document.getElementById("notificationTitle"),notificationText=document.getElementById("notificationText");
+function notify(title,text){notificationTitle.textContent=title;notificationText.textContent=text;notification.classList.add("show");clearTimeout(window.notificationTimer);window.notificationTimer=setTimeout(()=>notification.classList.remove("show"),2500)}
+document.querySelectorAll('input[type="checkbox"]').forEach(input=>input.addEventListener("change",function(){const name=this.dataset.name||"Configuração";notify("FFH4X",name+(this.checked?" ativado visualmente.":" desativado visualmente."))}));
+const fov=document.getElementById("fov"),fovValue=document.getElementById("fovValue");fov.addEventListener("input",()=>fovValue.textContent=fov.value+"°");
+const speed=document.getElementById("speed"),speedValue=document.getElementById("speedValue");speed.addEventListener("input",()=>speedValue.textContent=speed.value);
+const brightness=document.getElementById("brightness"),brightnessValue=document.getElementById("brightnessValue");brightness.addEventListener("input",()=>brightnessValue.textContent=brightness.value+"%");
+
+const injectOverlay = document.getElementById("injectOverlay");
+const progressBar = document.getElementById("progressBar");
+const progressPercent = document.getElementById("progressPercent");
+const progressStatus = document.getElementById("progressStatus");
+const fakeConsole = document.getElementById("fakeConsole");
+const injectTitle = document.getElementById("injectTitle");
+const injectSub = document.getElementById("injectSub");
+const openFF = document.getElementById("openFF");
+const closeInject = document.getElementById("closeInject");
+
+let injectTimer = null;
+
+function randomHex(length = 8){
+    const chars = "0123456789ABCDEF";
+    let result = "";
+    for(let i=0;i<length;i++){
+        result += chars[Math.floor(Math.random()*chars.length)];
+    }
+    return result;
+}
+
+function addFakeLine(percent){
+    const line = document.createElement("div");
+    const address = "0x" + randomHex(8);
+    const value = randomHex(12);
+
+    line.textContent =
+        "[" + String(percent).padStart(3,"0") + "%] 0x" +
+        address.slice(2) + "  DATA " + value;
+
+    fakeConsole.appendChild(line);
+
+    while(fakeConsole.children.length > 8){
+        fakeConsole.removeChild(fakeConsole.firstChild);
+    }
+
+    fakeConsole.scrollTop = fakeConsole.scrollHeight;
+}
+
+function startInjection(){
+    clearInterval(injectTimer);
+
+    injectOverlay.classList.add("show");
+    progressBar.style.width = "0%";
+    progressPercent.textContent = "0%";
+    progressStatus.textContent = "Preparando...";
+    fakeConsole.innerHTML = "";
+    openFF.classList.remove("show");
+    openFF.disabled = false;
+    closeInject.style.display = "block";
+    injectTitle.textContent = "INICIANDO INJEÇÃO";
+    injectSub.textContent = "Processo demonstrativo — nenhuma alteração será feita no jogo.";
+
+    let progress = 0;
+
+    injectTimer = setInterval(() => {
+        progress += Math.floor(Math.random() * 5) + 1;
+        if(progress > 100) progress = 100;
+
+        progressBar.style.width = progress + "%";
+        progressPercent.textContent = progress + "%";
+
+        if(progress < 25) progressStatus.textContent = "Inicializando...";
+        else if(progress < 50) progressStatus.textContent = "Carregando módulos...";
+        else if(progress < 75) progressStatus.textContent = "Verificando arquivos...";
+        else if(progress < 100) progressStatus.textContent = "Finalizando...";
+        else progressStatus.textContent = "Concluído";
+
+        addFakeLine(progress);
+
+        if(progress >= 100){
+            clearInterval(injectTimer);
+
+            setTimeout(() => {
+                injectTitle.textContent = "INJEÇÃO CONCLUÍDA";
+                injectSub.textContent = "Simulação concluída. Nenhuma modificação real foi realizada.";
+                openFF.classList.add("show");
+                closeInject.style.display = "block";
+            }, 500);
+        }
+    }, 130);
+}
+
+document.getElementById("injectBtn").addEventListener("click", startInjection);
+
+closeInject.addEventListener("click", () => {
+    clearInterval(injectTimer);
+    injectOverlay.classList.remove("show");
+});
+
+openFF.addEventListener("click", () => {
+    /*
+      Tentativa de abrir o aplicativo, caso o dispositivo/navegador
+      tenha um esquema de URL registrado para o Free Fire MAX.
+      Se não houver, o botão apenas mostra uma mensagem.
+    */
+    notify("FREE FIRE MAX", "Tentando abrir o aplicativo...");
+    window.location.href = "freefiremax://";
+});
+
+document.getElementById("antiBanBtn").addEventListener("click",()=>notify("MODO DEMONSTRAÇÃO","Anti Ban é apenas um elemento visual neste painel."));
+document.getElementById("resetBtn").addEventListener("click",()=>{document.querySelectorAll('input[type="checkbox"]').forEach(i=>i.checked=false);fov.value=120;fovValue.textContent="120°";speed.value=5;speedValue.textContent="5";brightness.value=100;brightnessValue.textContent="100%";notify("FFH4X","Configurações visuais restauradas.")});
+document.querySelectorAll(".menu button").forEach(button=>button.addEventListener("click",function(){document.querySelectorAll(".menu button").forEach(btn=>btn.classList.remove("active"));this.classList.add("active");notify("FFH4X","Seção "+this.textContent.trim()+" selecionada.")}));
+</script>
+</body>
+</html>
